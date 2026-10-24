@@ -2265,15 +2265,29 @@
     function speakMentorGreeting() { speakText(mentors[selectedMentorKey].greetings[currentLang], mentors[selectedMentorKey]); }
     function previewVoice(key) { speakText(mentors[key].greetings[currentLang], mentors[key]); }
 
-    function speakText(text, mentorObj) {
-      if (!('speechSynthesis' in window)) return;
-      window.speechSynthesis.cancel();
-      const m = mentorObj || mentors[selectedMentorKey];
-      const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = currentLang === 'ru' ? 'ru-RU' : (currentLang === 'en' ? 'en-US' : 'uk-UA');
-      utter.pitch = m.pitch;
-      utter.rate = m.rate;
-      window.speechSynthesis.speak(utter);
+    // ИДЕАЛЬНЫЙ ЖИВОЙ ГОЛОС (КАК НА ВИДЕО)
+    // Хранилище для активного аудио/видео, чтобы звуки не накладывались
+    let currentAudio = null;
+
+    // Функция воспроизведения вашего .mp4 файла при клике на «Прослухати»
+    function previewVoice(mentorKey) {
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      }
+
+      // Открывает нужный .mp4 файл в зависимости от выбранного персонажа
+      const mediaFileName = `${mentorKey}.mp4`;
+      currentAudio = new Audio(mediaFileName);
+
+      currentAudio.play().catch(err => {
+        console.warn(`Файл ${mediaFileName} не найден в папке с сайтом!`);
+      });
+    }
+
+    // Автоозвучка при выборе супровідника
+    function speakMentorGreeting() {
+      previewVoice(selectedMentorKey);
     }
 
     // ==========================================
